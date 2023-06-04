@@ -28,7 +28,7 @@ def plot_umap(data, labels,
         plt.scatter(temp_trans[:, 0], temp_trans[:, 1], s= 5, label=annotation_map[n])
     plt.title('UMAP of cell type clustering', fontsize=16)
     plt.legend(bbox_to_anchor=(1.2, 1.00))
-    plt.savefig(os.path.join(save_path, 'umap.jpg'), dpi=60)
+    plt.savefig(os.path.join(save_path, '.\\output\\umap.jpg'), dpi=60)
 	
     return
 

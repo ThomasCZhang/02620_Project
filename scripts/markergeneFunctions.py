@@ -60,8 +60,8 @@ def filter_genes_by_median(median_arr, mean_arr):
 	   mean_arr: (# of cluster, # of genes) numpy array
 			   Array of mean values for each cluster and each gene
 			   
-   Returns:
-	   None
+	Returns:
+		None
 
 	"""
 
@@ -101,7 +101,7 @@ def plot_marker_genes(data_path,
 					  clusters, 
 					  labels,
 					  n_genes:int=3,
-					  save_dir: str = None
+					  save_dir: str = None,
 					  gene_list_path:str='./data/human_MTG_2018-06-14_genes-rows.csv'
 					  ):
 	
@@ -116,7 +116,7 @@ def plot_marker_genes(data_path,
 			 List of clusters
 		 n_genes: int
 			 number of genes to plot
-	 Returns:
+	Returns:
 		None	 
 	
 	

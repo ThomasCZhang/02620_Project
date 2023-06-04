@@ -59,7 +59,7 @@ def dunn_index(cluster_labels, data, cluster_centroids):
                     inter_cluster_distance = distance
 
     # Step 3: Calculate Dunn Index
-    dunn = intra_cluster_distance / inter_cluster_distance
+    dunn = inter_cluster_distance / intra_cluster_distance
     return round(dunn, 3)
 
 
@@ -218,7 +218,7 @@ def confusion_matrix(true_labels, predictions):
 
     label_binarizer = LabelBinarizer().fit(true_labels)
     y_onehot_test_true = label_binarizer.transform(true_labels)
-    y_onehot_test_pred = label_binarizer.transform(pred_labels)
+    y_onehot_test_pred = label_binarizer.transform(predictions)
 
     for i in range(num_clusters):
         fpr, tpr, _ = roc_curve(y_onehot_test_true[:, i].ravel(),
@@ -283,12 +283,22 @@ def create_global_matrix(true, pred, cluster_labels, num_clusters):
             values = np.where(pred_labels == cluster_labels[j])
             matrix[i, j] = len(values[0])
 
-    sns.heatmap(data=matrix, annot=True, xticklabels=cluster_labels,
+    # label_to_idx = {}
+    # for i, val in enumerate(cluster_labels):
+    #     label_to_idx[val] = i
+    # for t, p in zip(true, pred):
+    #     t, p = label_to_idx[t], label_to_idx[p]
+    #     matrix[t,p] += 1
+
+    matrix /= np.sum(matrix, axis=1)
+    sns.heatmap(data=matrix, 
+# 				annot=True, 
+				xticklabels=cluster_labels,
                 yticklabels=cluster_labels)
     plt.title("Overall Confusion Matrix")
     plt.xlabel("Predicted Label")
     plt.ylabel("True Label")
-    plt.savefig("../output/ConfusionMatrixOverall.png")
+    plt.savefig("./output/ConfusionMatrixOverall.png")
     plt.clf()
     return matrix
 

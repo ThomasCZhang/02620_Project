@@ -264,7 +264,7 @@ def louvain_clustering(data_arr,
 import matplotlib.cm as cm
 
 import networkx.algorithms.community as nx_comm
-import community as community_louvain
+# import community as community_louvain
 
 
 

@@ -3,6 +3,17 @@ from matplotlib import pyplot as plt
 
 rng = np.random.default_rng(133221333123111)
 
+def LogSumExp(exp_values: np.ndarray[float]):
+    c = np.mean(exp_values)
+    logsum = -c + np.sum(exp_values-c)
+    return logsum
+
+def CalculateLogMultiVarDensity(x, mean, cov, reg_covar: float = 1e-6):
+    centered_x = (x - mean)[:, np.newaxis]
+    cov = cov + np.eye(cov.shape[0]) * reg_covar
+    log_p = -0.5*(np.linalg.det(2*np.pi*cov)+centered_x.T@np.linalg.pinv(cov)@centered_x)
+    return log_p
+
 def CalculateMultiVarDensity(x, mean, cov, reg_covar: float = 1e-6):
     """
     Calculates the multivariate normal for one sample.
@@ -40,8 +51,9 @@ def MultiVarNormal(x, mean, cov, reg_covar: float = 1e-6):
         - if you have a (1,1) you can extrect the scalar with .item(0) on the array
             - this will likely only apply if you compute for one example at a time
     """
-    probabilities = np.apply_along_axis(CalculateMultiVarDensity, 1, x, mean, cov, reg_covar)
-    return probabilities
+    # probabilities = np.apply_along_axis(CalculateMultiVarDensity, 1, x, mean, cov, reg_covar)
+    log_probabilities = np.apply_along_axis(CalculateLogMultiVarDensity, 1, x, mean, cov, reg_covar).reshape(-1)
+    return log_probabilities
 
 
 def UpdateMixProps(hidden_matrix):
@@ -54,6 +66,7 @@ def UpdateMixProps(hidden_matrix):
     Hint:
         - See equation in Lecture 10 pg 42
     """
+
     updated_mix_props = np.sum(hidden_matrix, axis=0) / hidden_matrix.shape[0]
     return updated_mix_props
 
@@ -132,27 +145,35 @@ def HiddenMatrix(X, means, covs, mix_props, reg_covar: float = 1e-6):
     """
     n = X.shape[0]
     k = means.shape[0]
-    hm = np.zeros((n, k))
+    log_hm = np.zeros((n, k))
     for i in range(k):
-        hm[:, i] = mix_props[i] * MultiVarNormal(X, means[i, :], covs[i, :, :], reg_covar)
+        log_hm[:, i] = mix_props[i] + MultiVarNormal(X, means[i, :], covs[i, :, :], reg_covar)
 
-    ll = np.sum(np.log(np.sum(hm, axis=1)))
-    hm = hm / np.sum(hm, axis=1)[:, np.newaxis]
-    return hm, ll
+    ll = np.sum(np.apply_along_axis(LogSumExp, 1, log_hm))
+    log_hm = log_hm - np.apply_along_axis(LogSumExp,1, log_hm)[:, np.newaxis]
+    log_hm = np.exp(log_hm)
+    print(np.where(log_hm == 0))
+    raise Exception("Help")
+    # ll = np.sum(np.log(np.sum(hm, axis=1)))
+    # hm = hm / np.sum(hm, axis=1)[:, np.newaxis]
+    return log_hm, ll
 
 
 def GMM(X, init_means, init_covs, init_mix_props, thresh=0.001, reg_covar: float = 1e-6, max_iterations: int = 1000):
     """
     Runs the GMM algorithm
+
     Input:
-        X - An (n,d) numpy array
-        init_means - a (k,d) numpy array; the initial means
-        init_covs - a (k,d,d) numpy arry; the initial covariance matrices
-        init_mix_props - a (k,) array; the initial mixing proportions
+        - X - An (n,d) numpy array
+        - init_means - a (k,d) numpy array; the initial means
+        - init_covs - a (k,d,d) numpy arry; the initial covariance matrices
+        - init_mix_props - a (k,) array; the initial mixing proportions
+    
     Output:
         - clusters: a (n,) numpy array; the cluster assignment for each sample
         - ll: th elog likelihood at the stopping condition
         - hm: The hidden matrix (probability that each sample is in each cluster)
+    
     Hints:
         - Use all the above functions
         - Stoping condition should be when the difference between your ll from
@@ -169,8 +190,8 @@ def GMM(X, init_means, init_covs, init_mix_props, thresh=0.001, reg_covar: float
         if i > 0 and loss[i] - loss[i - 1] < thresh:
             break
         mix_props = UpdateMixProps(hidden_matrix)
-        covs = UpdateCovars(X, hidden_matrix, means)
         means = UpdateMeans(X, hidden_matrix)
+        covs = UpdateCovars(X, hidden_matrix, means)
         i += 1
     return np.argmax(hidden_matrix, axis=1), loss[:i], hidden_matrix
 

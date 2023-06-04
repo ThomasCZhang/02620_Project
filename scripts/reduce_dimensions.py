@@ -67,59 +67,59 @@ def plot_PCs(variances):
 # In[3]:
 
 
-data = np.loadtxt("../output/data_loaded.csv", dtype=float, delimiter=",")
-data[data == 0.0] = 0.0000001
-print("Data is loaded. Now taking log-transform. ")
+# data = np.loadtxt("../output/data_loaded.csv", dtype=float, delimiter=",")
+# data[data == 0.0] = 0.0000001
+# print("Data is loaded. Now taking log-transform. ")
 
 
-# In[4]:
+# # In[4]:
 
 
-data = log_transform(data)
-print("Data is transformed. Now scaling.")
+# data = log_transform(data)
+# print("Data is transformed. Now scaling.")
 
 
-# In[25]:
+# # In[25]:
 
 
-data = scale(data)
-print("Data is mean-centred. Now performing PCA.")
+# data = scale(data)
+# print("Data is mean-centred. Now performing PCA.")
 
 
-# In[26]:
+# # In[26]:
 
 
-variances, reduced_data = perform_pca(data)
-print("PCA successful! Now saving data.")
+# variances, reduced_data = perform_pca(data)
+# print("PCA successful! Now saving data.")
 
 
-# In[27]:
+# # In[27]:
 
 
-sample = reduced_data[:500, :]
-np.savetxt("../output/reduced_sample_20_PCs.csv", sample, delimiter=",", fmt="%.2f")
+# sample = reduced_data[:500, :]
+# np.savetxt("../output/reduced_sample_20_PCs.csv", sample, delimiter=",", fmt="%.2f")
 
 
-# In[28]:
+# # In[28]:
 
 
-np.savetxt("../output/reduced_data_20_PCs.csv", reduced_data, delimiter=",", fmt="%.2f")
-print("Data saved! Now plotting.")
+# np.savetxt("../output/reduced_data_20_PCs.csv", reduced_data, delimiter=",", fmt="%.2f")
+# print("Data saved! Now plotting.")
 
 
-# In[29]:
+# # In[29]:
 
 
-plot_PCs(variances)
+# plot_PCs(variances)
 
 
-# In[30]:
+# # In[30]:
 
 
-sum(variances)
+# sum(variances)
 
 
-# In[ ]:
+# # In[ ]:
 
 
 
